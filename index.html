@@ -1,0 +1,1321 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width" , initial-scale=1, maximum-scale=1>
+    <meta name="description" property="og:description"
+        content="Deciduous is a security decision tree generator that serves as a threat modeling tool for engineering teams who want to create attack trees in the spirit of Security Chaos Engineering">
+    <meta name="author" content="Ryan Petrich, Kelly Shortridge">
+    <meta property="og:description"
+        content="Deciduous is a security decision tree generator that serves as a threat modeling tool for engineering teams who want to create attack trees in the spirit of Security Chaos Engineering" />
+    <meta property="og:title" content="Deciduous - Security Decision Tree Generator" />
+    <meta property="og:image" content="./deciduous-logo-social.jpg" />
+    <meta property="og:url" content="https://www.deciduous.app/" />
+    <meta name="twitter:card" content="summary_large_image">
+    </meta>
+    <meta name="twitter:site" content="@swagitda_" />
+    <meta name="twitter:creator" content="@rpetrich" />
+    <meta name="twitter:image" content="https://swagitda.com/deciduous/deciduous-logo-social.jpg" />
+    <title>Deciduous - Security Decision Tree Generator</title>
+    <script src="https://cdn.jsdelivr.net/npm/@hpcc-js/wasm@1.2.1/dist/index.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
+    <link rel="shortcut icon" href="./favicon.ico" type="image/x-icon" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans&display=swap" rel="stylesheet">
+    <style type="text/css">
+        body,
+        html {
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+            font-family: "Helvetica Neue", Helvetica, arial, sans-serif;
+        }
+
+        a {
+            color: #1B2CC1;
+        }
+
+        a:visited {
+            color: #FF499B;
+        }
+
+        #leftPane {
+            position: absolute;
+            width: 40%;
+            height: 100%;
+        }
+
+        .sectionHeader {
+            position: absolute;
+            width: 100%;
+            top: 0px;
+            left: 0px;
+            height: 40px;
+            font-family: 'Josefin Sans', sans-serif;
+            font-size: 16pt;
+            color: #0E1660;
+            margin: 0;
+            border-bottom: 1px solid silver;
+            padding-left: 20px;
+            padding-top: 9px;
+            box-sizing: border-box;
+        }
+
+        #inputSource,
+        #highlighting {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            font-size: 12pt;
+            padding: 20px;
+            line-height: 20px;
+            box-sizing: border-box;
+            overflow: auto;
+            white-space: pre;
+            text-size-adjust: none;
+            border: medium none;
+            border-top: 40px solid transparent;
+        }
+
+        #inputSource {
+            resize: none;
+            appearance: none;
+            -moz-appearance: none;
+            -webkit-appearance: none;
+            outline: 0;
+            border-right: 1px solid silver;
+            z-index: 1;
+            color: transparent;
+            background: transparent;
+            caret-color: black;
+        }
+
+        #highlighting {
+            z-index: 0;
+        }
+
+        #inputSource,
+        code {
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+        }
+
+        code {
+            padding: 0;
+        }
+
+        #errorTarget {
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+        }
+
+        .contentArea {
+            position: absolute;
+            left: 40%;
+            width: 60%;
+            height: 100%;
+            overflow: auto;
+            font-family: 'Josefin Sans', sans-serif;
+        }
+
+        .right-header {
+            display: flex;
+            width: 100%;
+            height: auto;
+        }
+
+        .logo {
+            margin-right: 1em;
+            margin-bottom: 1em;
+        }
+
+        .menuWrapper {
+            padding: 5px;
+            flex: 1;
+            text-align: right;
+        }
+
+        .menuWrapper p {
+            text-align: left;
+        }
+
+        .dropdownWrapper {
+            display: inline-block;
+        }
+
+        .dropdownWrapper ul {
+            display: none;
+            position: absolute;
+            z-index: 1;
+            background: #D2D5DD;
+            margin: 0;
+            list-style-type: none;
+            padding: 2px;
+            text-align: left;
+            border-radius: 0 4px 4px 4px;
+        }
+
+        .dropdownWrapper .dropdownHoverArea {
+            display: inline-block;
+            cursor: pointer;
+            padding: 2px;
+            border-radius: 4px 4px 0 0;
+        }
+
+        .dropdownWrapper .dropdownHoverArea::after {
+            content: " ▼";
+            font-size: 33%;
+        }
+
+        .dropdownWrapper ul li {
+            margin: 0;
+            padding-top: 5px;
+        }
+
+        .dropdownWrapper.active ul {
+            display: block;
+        }
+
+        .dropdownWrapper.active .dropdownHoverArea {
+            background: #D2D5DD;
+        }
+
+        #renderTarget {
+            display: inline-block;
+            position: relative;
+            width: 100%;
+            padding-bottom: 100%;
+            vertical-align: top;
+        }
+
+        svg {
+            display: inline-block;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .copyright {
+            text-align: center;
+        }
+
+        #highlighting {
+            color: grey;
+        }
+
+        #highlighting .punctuation {
+            color: grey;
+        }
+
+        #highlighting .attacks,
+        #highlighting .attack {
+            color: #ff1c82;
+        }
+
+        #highlighting .mitigations,
+        #highlighting .mitigation {
+            color: #2b56b5;
+        }
+
+        #highlighting .facts,
+        #highlighting .fact {
+            color: #1b0533;
+        }
+
+        #highlighting .goals,
+        #highlighting .goal {
+            color: #5f00c2;
+        }
+
+        #highlighting .cias,
+        #highlighting .cia {
+            color: #c23a00;
+        }
+
+        #highlighting .comment {}
+
+        #dragger {
+            cursor: col-resize;
+            position: absolute;
+            height: 100%;
+            width: 3px;
+        }
+
+        @media print {
+            .logo {
+                position: absolute;
+                left: 0;
+                top: 0;
+            }
+
+            .contentArea {
+                position: absolute;
+                width: 100%;
+                height: auto;
+                overflow: visible;
+            }
+
+            svg {
+                position: fixed;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                width: 100%;
+                height: 100%;
+            }
+
+            #leftPane,
+            #dragger {
+                display: none;
+            }
+
+            #inputSource {
+                display: none;
+            }
+
+            #inputHighlighted {
+                display: none;
+            }
+
+            .menuWrapper {
+                display: none;
+            }
+
+            .copyright {
+                position: fixed;
+                bottom: 0;
+
+            }
+    </style>
+</head>
+
+<body>
+    <div id="leftPane">
+        <h2 class="sectionHeader">Text Editor</h2>
+        <textarea id="inputSource" spellcheck="false">
+title: (Example) Attack Tree for S3 Bucket with Video Recordings
+
+facts:
+- wayback: API cache (e.g. Wayback Machine)
+  from:
+  - reality: '#yolosec'
+- public_bucket: S3 bucket set to public
+  from:
+  - bucket_search: '#yolosec'
+- subsystem_with_access: Subsystem with access to bucket data
+  from:
+  - compromise_user_creds
+
+attacks:
+- bucket_search: AWS public buckets search
+  from:
+  - disallow_crawling
+- brute_force:
+  from:
+  - private_bucket
+- phishing:
+  from:
+  - private_bucket
+  - internal_only_bucket:
+    backwards: true
+  - access_control_server_side:
+    backwards: true
+- compromise_user_creds: Compromise user credentials
+  from:
+  - brute_force
+  - phishing
+- analyze_web_client: Manually analyze web client for access control misconfig
+  from:
+  - lock_down_acls
+- compromise_admin_creds: Compromise admin creds
+  from:
+  - phishing
+- compromise_aws_creds: Compromise AWS admin creds
+  from:
+  - phishing
+- intercept_2fa: Intercept 2FA
+  from:
+  - 2fa
+- ssh_to_public_machine: SSH to an accessible machine
+  from:
+  - compromise_admin_creds: '#yolosec'
+  - compromise_aws_creds:
+  - intercept_2fa
+- lateral_movement_to_machine_with_access: Lateral movement to machine with access to target bucket
+  from:
+  - ip_allowlist_for_ssh
+- compromise_presigned: Compromise presigned URLs
+  from:
+  - phishing
+- compromise_quickly: Compromise URL within N time period
+  from:
+  - short_lived_presigning
+- recon_on_s3: Recon on S3 buckets
+  from:
+  - private_bucket
+  - disallow_bucket_urls:
+    backwards: true
+  - 2fa:
+    backwards: true
+- find_systems_with_access: Find systems with R/W access to target bucket
+  from:
+  - recon_on_s3: '#yolosec'
+- exploit_known_vulns: Exploit known 3rd party library vulns
+  from:
+  - find_systems_with_access
+- buy_0day:
+  from:
+  - vuln_scanning
+- discover_0day: Manual discovery of 0day
+  from:
+  - vuln_scanning
+- exploit_vulns: Exploit vulns
+  from:
+  - buy_0day
+  - discover_0day
+- aws_0day: 0day in AWS multitenant systems
+  from:
+  - ips
+- supply_chain_backdoor: Supply chain compromise (backdoor)
+  from:
+  - single_tenant_hsm
+
+mitigations:
+- disallow_crawling: Disallow crawling on site maps
+  from:
+  - reality
+- private_bucket: Auth required / ACLs (private bucket)
+  from:
+  - reality
+- lock_down_acls: Lock down web client with creds / ACLs
+  from:
+  - subsystem_with_access
+- access_control_server_side: Perform all access control server side
+  from:
+  - analyze_web_client
+- 2fa: 2FA
+  from:
+  - compromise_admin_creds: '#yolosec'
+  - compromise_aws_creds
+- ip_allowlist_for_ssh: IP allowlist for SSH
+  from:
+  - ssh_to_public_machine
+- short_lived_presigning: Make URL short lived
+  from:
+  - compromise_presigned
+- disallow_bucket_urls: Disallow the use of URLs to access buckets
+  from:
+  - compromise_quickly
+- vuln_scanning: 3rd party library checking / vuln scanning
+  from:
+  - exploit_known_vulns
+- ips: Exploit prevention / detection
+  from:
+  - exploit_vulns
+- single_tenant_hsm: Use single tenant AWS HSM
+  from:
+  - aws_0day:
+    implemented: false
+- internal_only_bucket: No public system has R/W access (internal only)
+  from:
+  - find_systems_with_access
+
+goals:
+- s3_asset: Access video recordings in S3 bucket (attackers win)
+  from:
+  - wayback: '#yolosec'
+  - public_bucket
+  - subsystem_with_access
+  - analyze_web_client
+  - lateral_movement_to_machine_with_access
+  - compromise_presigned
+  - compromise_quickly
+  - exploit_vulns
+  - aws_0day
+  - supply_chain_backdoor
+- company_bank_account: Access company bank account
+  from:
+  - intercept_2fa
+
+cias:
+- Availability:
+  from:
+  - T1486
+- Confidentiality:
+- Integrity:
+
+# filter can be used to show only paths that flow through specific nodes
+filter:
+- s3_asset
+</textarea>
+        <pre id="highlighting" aria-hidden="true"><code id="inputHighlighted"></code></pre>
+    </div>
+    <div class="contentArea" id="rightPane">
+        <div class="right-header">
+            <div class="logo">
+                <img src="./deciduous-logo.png" alt="Deciduous logo" height="75" width="198">
+            </div>
+            <div class="menuWrapper">
+                <label for="themePicker">Theme: </label><select id="themePicker"></select>
+                <div id="downloadWrapper" class="dropdownWrapper">
+                    <a href="#" id="downloadHoverArea" class="dropdownHoverArea">Download</a>
+                    <ul>
+                        <li><a id="downloadLink" download="decision-tree.dot">Graphviz DOT Format</a></li>
+                        <li><a id="downloadYAMLLink" download="decision-tree.yaml">YAML Format</a></li>
+                        <li><a id="downloadSvgLink" download="decision-tree.svg">SVG Image</a></li>
+                        <li><a id="downloadPngLink" href="#" download="decision-tree.png">PNG Image</a></li>
+                    </ul>
+                </div>
+                <div id="importWrapper" class="dropdownWrapper">
+                    <a href="#" id="importHoverArea" class="dropdownHoverArea">Import</a>
+                    <ul>
+                        <li><a id="openGistLink" href="#">From GitHub Gist</a></li>
+                        <li><a id="openLocalFileLink" href="#">From YAML File</a></li>
+                    </ul>
+                </div>
+                <a href="https://github.com/rpetrich/deciduous#deciduous">GitHub Repo</a>
+            </div>
+        </div>
+        <div id="errorTarget">JavaScript is required</div>
+        <div id="renderTarget"></div>
+        <p class="copyright">&copy; Copyright 2023 Ryan Petrich & Kelly Shortridge (Team Bad, LLC)</p>
+    </div>
+    <div id="dragger"></div>
+    <script>
+        function wordwrap(text, limit) {
+            text = String(text);
+            if (text.indexOf("\n") != -1) {
+                return text;
+            }
+            const split = text.split(" ");
+            let all = [];
+            let current = [];
+            let currentLength = 0;
+            for (let i = 0; i < split.length; i++) {
+                const line = split[i];
+                if (currentLength == 0 || (currentLength + line.length < limit && line[0] != "(")) {
+                    current.push(line);
+                    currentLength += line.length;
+                } else {
+                    all.push(current.join(" "));
+                    current = [line];
+                    currentLength = line.length;
+                }
+            }
+            all.push(current.join(" "));
+            return all.join("\n");
+        }
+        function mangleName(name) {
+            if (/^[A-Za-z]\w*$/.test(name)) {
+                return name;
+            }
+            return JSON.stringify(name);
+        }
+        function line(name, properties) {
+            const entries = Object.entries(properties);
+            if (entries.length == 0) {
+                return name;
+            }
+            return name + " [ " + entries.map(([key, value]) => `${key}=${JSON.stringify(value)}`).join(" ") + " ]";
+        }
+        function parseFrom(raw) {
+            if (typeof raw == "object") {
+                const [fromName, label] = Object.entries(raw)[0];
+                return [fromName, label, raw]
+            }
+            return [String(raw), null, {}];
+        }
+        const themes = {
+            "classic": {
+                "edge": "#2B303A",
+                "edge-text": "#DB2955",
+                "backwards-edge": "#7692FF",
+                "reality-fill": "#2B303A",
+                "reality-text": "#FFFFFF",
+                "fact-fill": "#C6CCD2",
+                "attack-fill": "#ED96AC",
+                "mitigation-fill": "#ABD2FA",
+                "goal-fill": "#DB2955",
+                "goal-text": "#FFFFFF",
+                "cia-fill": "#c23a00",
+                "cia-text": "#FFFFFF",
+            },
+            "default": {
+                "edge": "#2B303A",
+                "edge-text": "#010065",
+                "backwards-edge": "#7692FF",
+                "backwards-edge-penwidth": 3,
+                "backwards-edge-arrowsize": .5,
+                "reality-fill": "#272727",
+                "reality-text": "#FFFFFF",
+                "fact-fill": "#D2D5DD",
+                "attack-fill": "#ff92cc",
+                "mitigation-fill": "#B9D6F2",
+                "goal-fill": "#5f00c2",
+                "goal-text": "#FFFFFF",
+                "cia-fill": "#c23a00",
+                "cia-text": "#FFFFFF",
+            },
+            "accessible": {
+                "edge": "#2B303A",
+                "edge-text": "#010065",
+                "backwards-edge": "#7692FF",
+                "backwards-edge-penwidth": 3,
+                "backwards-edge-arrowsize": .5,
+                "reality-fill": "#272727",
+                "reality-text": "#FFFFFF",
+                "fact-fill": "#D2D5DD",
+                "attack-fill": "#FF7EC3",
+                "mitigation-fill": "#CCCCFF",
+                "goal-fill": "#5f00c2",
+                "goal-text": "#FFFFFF",
+                "cia-fill": "#c23a00",
+                "cia-text": "#FFFFFF",
+            },
+            "cosive": {
+                "edge": "#2B303A",
+                "edge-text": "#010065",
+                "backwards-edge": "#7692FF",
+                "backwards-edge-penwidth": 3,
+                "backwards-edge-arrowsize": .5,
+                "reality-fill": "#272727",
+                "reality-text": "#FFFFFF",
+                "fact-fill": "#bdbdbd",
+                "attack-fill": "#ee7b79",
+                "mitigation-fill": "#29b6f6",
+                "goal-fill": "#e53935",
+                "goal-text": "#FFFFFF",
+                "cia-fill": "#212020",
+                "cia-text": "#FFFFFF",
+            },
+        }
+        function convertToDot(yaml) {
+            const parsed = jsyaml.load(yaml);
+            const font = 'Arial'
+            const themeName = Object.hasOwnProperty.call(themes, parsed.theme) ? parsed.theme : "default";
+            const theme = themes[themeName];
+            const header = `// Generated from https://www.deciduous.app/
+digraph {
+    // base graph styling
+    rankdir="TB";
+    TBbalance="max"
+    splines=true;
+    overlap=false;
+    nodesep="0.2";
+    ranksep="0.4";
+    label=${JSON.stringify(typeof parsed.title === "string" ? parsed.title : "")};
+    labelloc="t";
+    fontname=${JSON.stringify(font)};
+    node [ shape="plaintext" style="filled, rounded" fontname=${JSON.stringify(font)} margin=0.2 ]
+    edge [ fontname=${JSON.stringify(font)} fontsize=12 color="${theme["edge"]}" ]
+
+    // is reality a hologram?
+    reality [ label="Threat Scenario" fillcolor="${theme["reality-fill"]}" fontcolor="${theme["reality-text"]}" ]
+
+`;
+            const goals = parsed.goals || [];
+            const facts = parsed.facts || [];
+            const attacks = parsed.attacks || [];
+            const mitigations = parsed.mitigations || [];
+            const cias = parsed.cias || [];
+            const filter = parsed.filter || [];
+            const subgraphs = [];
+            const forwards = {};
+            const forwardsAll = {};
+            const backwards = {};
+            const allNodes = [...facts, ...attacks, ...mitigations, ...goals, ...cias];
+            const types = {};
+            for (const node of allNodes) {
+                const [toName] = Object.entries(node)[0];
+                const fromNames = backwards[toName] || (backwards[toName] = []);
+                if (node.from) {
+                    for (const from of node.from) {
+                        const [fromName, label, props] = parseFrom(from);
+                        if (!from.backwards && !from.ungrouped) {
+                            const toNames = forwards[fromName] || (forwards[fromName] = []);
+                            toNames.push(toName);
+                            fromNames.push(fromName);
+                        }
+                        const toNames = forwardsAll[fromName] || (forwardsAll[fromName] = []);
+                        toNames.push(toName);
+                    }
+                }
+            }
+            function anyDominates(forwards, d, n) {
+                // search to see if any nodes in d dominate n
+                // nodes dominate themselves
+                const search = [];
+                const added = {};
+                for (const other of d) {
+                    added[other] = true;
+                    search.push(other);
+                }
+                while ((d = search.shift()) !== undefined) {
+                    if (d === n) {
+                        return true;
+                    }
+                    const others = forwards[d];
+                    if (others !== undefined) {
+                        for (const other of others) {
+                            if (!Object.hasOwnProperty.call(added, other)) {
+                                added[other] = true;
+                                search.push(other);
+                            }
+                        }
+                    }
+                }
+                return false;
+            }
+            function shouldShow(n) {
+                if (filter.length == 0 || anyDominates(forwardsAll, filter, n)) {
+                    return true;
+                }
+                const arrayN = [n];
+                return filter.find(other => anyDominates(forwardsAll, arrayN, other));
+            }
+            function defaultLabelForName(name) {
+                return name.replace(/_/g, " ").replace(/^[a-z]/, c => c.toUpperCase());
+            }
+            function nodes(type, values, properties) {
+                const result = [];
+                for (const value of values) {
+                    const [name, label] = Object.entries(value)[0];
+                    types[name] = type;
+                    if (shouldShow(name)) {
+                        result.push(line(mangleName(name), {
+                            label: wordwrap(label === null ? defaultLabelForName(name) : label, 18),
+                            ...properties,
+                        }));
+                    }
+                }
+                return result;
+            }
+            const allNodeLines = [
+                `// facts`,
+                ...nodes("fact", facts, {
+                    fillcolor: theme["fact-fill"],
+                }),
+                `// attacks`,
+                ...nodes("attack", attacks, {
+                    fillcolor: theme["attack-fill"],
+                }),
+                `// mitigations`,
+                ...nodes("mitigation", mitigations, {
+                    fillcolor: theme["mitigation-fill"],
+                }),
+                `// goals`,
+                ...nodes("goal", goals, {
+                    fillcolor: theme["goal-fill"],
+                    fontcolor: theme["goal-text"],
+                }),
+                `// cias`,
+                ...nodes("cia", cias, {
+                    fillcolor: theme["cia-fill"],
+                    fontcolor: theme["cia-text"],
+                })
+            ];
+            function edges(entries, properties) {
+                return entries.reduce((edges, value) => {
+                    const [name] = Object.entries(value)[0];
+                    if (!shouldShow(name)) {
+                        return edges;
+                    }
+                    (value.from || []).forEach((from) => {
+                        const [fromName, label, fromProps] = parseFrom(from);
+                        if (!shouldShow(fromName)) {
+                            return;
+                        }
+                        const props = {
+                            ...properties,
+                        };
+                        if (typeof label === "string") {
+                            props.xlabel = wordwrap(label, 20);
+                            props.fontcolor = theme["edge-text"];
+                        }
+                        if (typeof fromProps.implemented == "boolean" && !fromProps.implemented) {
+                            props.style = "dotted";
+                        }
+                        if (fromProps.backwards) {
+                            props.style = "dotted";
+                            props.color = theme["backwards-edge"];
+                            props.penwidth = theme["backwards-edge-penwidth"];
+                            props.arrowsize = theme["backwards-edge-arrowsize"];
+                            props.weight = "0";
+                        }
+                        edges.push(line(`${mangleName(fromName)} -> ${mangleName(name)}`, props));
+                    });
+                    return edges;
+                }, []);
+            }
+            const allEdgeLines = [...edges(cias, {}), ...edges(goals, {}), ...edges(attacks, {}), ...edges(mitigations, {}), ...edges(facts, {}),];
+            const goalNames = goals.map((goal) => {
+                const [goalName] = Object.entries(goal)[0];
+                return goalName;
+            });
+            for (const [fromName, toNames] of Object.entries(forwards)) {
+                if (!shouldShow(fromName)) {
+                    continue;
+                }
+                const copy = toNames.concat();
+                const filteredToNames = [];
+                for (let i = 0; i < toNames.length; i++) {
+                    copy.splice(i, 1);
+                    if (!anyDominates(forwards, copy, toNames[i]) && goalNames.indexOf(toNames[i]) == -1 && shouldShow(toNames[i])) {
+                        filteredToNames.push(toNames[i]);
+                    }
+                    copy.splice(i, 0, toNames[i]);
+                }
+                if (filteredToNames.length > 1) {
+                    subgraphs.push(`    subgraph ${mangleName(fromName)}_order {
+        rank=same;
+        ${filteredToNames.map(toName => mangleName(toName) + ";").join("\n        ")}
+    }
+    ${line(filteredToNames.map(mangleName).join(" -> "), { style: "invis" })}`);
+                }
+            }
+            const shownGoals = goalNames.filter(shouldShow);
+            if (shownGoals > 1) {
+
+                subgraphs.push(`    subgraph goal_order {
+        rank=same;
+        ${shownGoals.map(goalName => mangleName(goalName) + ";").join("\n        ")}
+    }`);
+                subgraphs.push("    " + line(shownGoals.join(" -> "), { style: "invis" }));
+            }
+            subgraphs.push(`    { rank=min; reality; }`);
+            for (const node of allNodes) {
+                const [toName] = Object.entries(node)[0];
+                if (shouldShow(toName) && !forwards[toName] && shownGoals.indexOf(toName) === -1) {
+                    for (const goalName of shownGoals) {
+                        subgraphs.push("    " + line(mangleName(toName) + " -> " + mangleName(goalName), { style: "invis", weight: 0 }));
+                    }
+                }
+            }
+            subgraphs.push(`    { rank=max; ${shownGoals.map(goalName => mangleName(goalName) + "; ").join("")}}`);
+            const footer = "\n\n}\n";
+            return [header + "    " + allNodeLines.join("\n    ") + "\n\n    " + allEdgeLines.join("\n    ") + "\n\n    // subgraphs to give proper layout\n" + subgraphs.join("\n\n") + footer, typeof parsed.title === "string" ? parsed.title : "", types, themeName];
+        }
+        const renderTarget = document.getElementById("renderTarget");
+        const errorTarget = document.getElementById("errorTarget");
+        const inputSource = document.getElementById("inputSource");
+        const downloadLink = document.getElementById("downloadLink");
+        const downloadYAMLLink = document.getElementById("downloadYAMLLink");
+        const downloadPngLink = document.getElementById("downloadPngLink");
+        const downloadSvgLink = document.getElementById("downloadSvgLink");
+        const openGistLink = document.getElementById("openGistLink");
+        const openLocalFileLink = document.getElementById("openLocalFileLink");
+        const inputHighlighted = document.getElementById("inputHighlighted");
+        const highlighting = document.getElementById("highlighting");
+        function syncScroll() {
+            highlighting.scrollTop = inputSource.scrollTop;
+            highlighting.scrollLeft = inputSource.scrollLeft;
+        }
+        window["@hpcc-js/wasm"].graphvizSync().then(graphviz => {
+            let lastInput = "";
+            let lastObjectURL = "";
+            let lastYAMLObjectURL = "";
+            let lastSvgObjectURL = "";
+            let lastPngObjectURL = "";
+            let types = {};
+            let currentTheme = "default";
+            function selectRange(start, end) {
+                inputSource.blur();
+                inputSource.selectionEnd = inputSource.selectionStart = start;
+                inputSource.focus();
+                inputSource.selectionEnd = end;
+                syncScroll();
+                setTimeout(syncScroll, 0);
+            }
+            const themePicker = document.getElementById("themePicker");
+            function rerender() {
+                syncScroll();
+                const newInput = inputSource.value;
+                if (newInput != lastInput) {
+                    lastInput = newInput;
+                    if (window.localStorage) {
+                        localStorage.setItem("deciduous-content", newInput);
+                    }
+                    function updateTextArea() {
+                        types["attacks"] = "attacks";
+                        types["mitigations"] = "mitigations";
+                        types["goals"] = "goals";
+                        types["facts"] = "facts";
+                        types["reality"] = "facts";
+                        types["cias"] = "cias";
+                        let current = "";
+                        let i = 0;
+                        const childNodes = inputHighlighted.childNodes;
+                        function insertTextNode(text) {
+                            if (i < childNodes.length) {
+                                const node = childNodes[i];
+                                if (node.nodeType === Node.TEXT_NODE) {
+                                    if (node.textContent !== text) {
+                                        node.textContent = text;
+                                    }
+                                } else {
+                                    inputHighlighted.replaceChild(document.createTextNode(text), node);
+                                }
+                            } else {
+                                inputHighlighted.appendChild(document.createTextNode(text));
+                            }
+                            i++;
+                        }
+                        function insertSpan(text, className) {
+                            if (i < childNodes.length) {
+                                const node = childNodes[i];
+                                if (node.nodeType === Node.ELEMENT_NODE) {
+                                    if (node.textContent !== text) {
+                                        node.textContent = text;
+                                    }
+                                    if (node.className !== className) {
+                                        node.className = className
+                                    }
+                                } else {
+                                    const span = document.createElement("span");
+                                    span.className = className;
+                                    span.textContent = text;
+                                    inputHighlighted.replaceChild(span, node);
+                                }
+                            } else {
+                                const span = document.createElement("span");
+                                span.className = className;
+                                span.textContent = text;
+                                inputHighlighted.appendChild(span);
+                            }
+                            i++;
+                        }
+                        for (const token of (newInput[newInput.length - 1] == "\n" ? newInput + " " : newInput).split(/\b/)) {
+                            if (Object.hasOwnProperty.call(types, token)) {
+                                insertTextNode(current);
+                                current = "";
+                                insertSpan(token, types[token]);
+                            } else {
+                                current += token;
+                            }
+                        }
+                        insertTextNode(current);
+                        while (i < childNodes.length) {
+                            inputHighlighted.removeChild(childNodes[i]);
+                        }
+                        // Resync line height
+                        const highlightedHeight = inputHighlighted.getBoundingClientRect().height;
+                        const inputHeight = inputSource.scrollHeight;
+                        if (highlightedHeight > inputHeight) {
+                            // line height hack for Firefox+Windows
+                            inputSource.style.lineHeight = highlightedHeight * 20.01 / (inputHeight - 40) + "px";
+                        }
+                    }
+                    try {
+                        let dot, title;
+                        [dot, title, types, currentTheme] = convertToDot(newInput);
+                        themePicker.value = currentTheme;
+                        // Syntax highlighting
+                        updateTextArea();
+                        // console.log(dot);
+                        // Render SVG into the document
+                        document.title = `Deciduous - Security Decision Tree Generator (${title})`;
+                        const svg = graphviz.layout(dot, "svg", "dot");
+                        renderTarget.innerHTML = svg;
+                        const svgElement = renderTarget.querySelector("svg");
+                        if (svgElement) {
+                            const scale = 0.75;
+                            svgElement.setAttribute("width", parseInt(svgElement.getAttribute("width"), 10) * scale + "pt");
+                            svgElement.setAttribute("height", parseInt(svgElement.getAttribute("height"), 10) * scale + "pt");
+                        };
+
+                        // Create a download link
+                        if (window.File && URL.createObjectURL) {
+                            const file = new File([dot], "graph.dot", {
+                                "type": "text/vnd.graphviz",
+                            }
+                            );
+
+                            downloadLink.download = title + ".dot";
+                            const newObjectURL = URL.createObjectURL(file);
+                            downloadLink.href = newObjectURL;
+                            if (lastObjectURL != "") {
+                                URL.revokeObjectURL(lastObjectURL);
+                            }
+                            lastObjectURL = newObjectURL;
+
+                            const svgFile = new File([svg], "graph.svg", {
+                                "type": "image/svg+xml",
+                            });
+
+                            downloadSvgLink.download = title + ".svg";
+                            const newSvgObjectURL = URL.createObjectURL(svgFile);
+                            downloadSvgLink.href = newSvgObjectURL;
+                            if (lastSvgObjectURL != "") {
+                                URL.revokeObjectURL(lastSvgObjectURL);
+                            }
+                            lastSvgObjectURL = newSvgObjectURL;
+
+                            downloadPngLink.download = title + ".png";
+                            if (lastPngObjectURL != "") {
+                                URL.revokeObjectURL(lastPngObjectURL);
+                                lastPngObjectURL = "";
+                            }
+
+                            const yamlFile = new File([newInput], "graph.yaml", {
+                                "type": "text/yaml",
+                            });
+
+                            downloadYAMLLink.download = title + ".yaml";
+                            const newYAMLObjectURL = URL.createObjectURL(yamlFile)
+                            downloadYAMLLink.href = newYAMLObjectURL;
+                            if (lastObjectURL != "") {
+                                URL.revokeObjectURL(lastYAMLObjectURL);
+                            }
+                            lastYAMLObjectURL = newYAMLObjectURL;
+                        }
+                        // Add quick linky links
+                        for (const title of renderTarget.querySelectorAll("title")) {
+                            title.parentNode.style.cursor = "pointer";
+                            title.parentNode.addEventListener("click", () => {
+                                const node = title.textContent;
+                                const matches = node.match(/^(\w+)->(\w+)$/);
+                                if (matches) {
+                                    // Select the appropriate "from entry" inside the target attack, mitigation or goal
+                                    const firstIndex = lastInput.indexOf("\n- " + matches[2]);
+                                    if (firstIndex != -1) {
+                                        let secondIndex = lastInput.indexOf("- " + matches[1], firstIndex + 4 + matches[2].length);
+                                        if (secondIndex != -1) {
+                                            selectRange(secondIndex + 2, secondIndex + 2 + matches[1].length);
+                                        }
+                                    }
+                                } else {
+                                    // Select a top level attack, mitigation or goal
+                                    const index = lastInput.indexOf("\n- " + node);
+                                    if (index != -1) {
+                                        selectRange(index + 3, index + 3 + node.length);
+                                    }
+                                }
+                            }, false);
+                            // Clone edge paths and make them thicker to make them easier to click
+                            if (title.parentNode.getAttribute("class") === "edge") {
+                                const path = title.parentNode.querySelector("path");
+                                if (path) {
+                                    const thickPath = path.cloneNode(true);
+                                    thickPath.setAttribute("stroke", "transparent");
+                                    thickPath.setAttribute("stroke-width", "15px");
+                                    title.parentNode.insertBefore(thickPath, path);
+                                }
+                            }
+                        }
+                        // Clear any error text
+                        errorTarget.innerText = "";
+                    } catch (e) {
+                        errorTarget.innerText = String(e);
+                        updateTextArea();
+                    }
+                }
+            }
+            function rerenderAndClearHash() {
+                if (location.hash !== "") {
+                    location.hash = "";
+                }
+                rerender();
+            }
+            inputSource.addEventListener("change", rerenderAndClearHash, false);
+            inputSource.addEventListener("input", rerenderAndClearHash, false);
+            inputSource.addEventListener("scroll", syncScroll, false);
+            inputSource.addEventListener("select", syncScroll, false);
+            inputSource.addEventListener("wheel", syncScroll, false);
+            inputSource.addEventListener("focus", syncScroll, false);
+            inputSource.addEventListener("blur", syncScroll, false);
+            let tabCompletionCandidates = [];
+            inputSource.addEventListener("keydown", (e) => {
+                // Tab support
+                if (e.code === "Tab" && !e.metaKey && !e.ctrlKey && !e.altKey) {
+                    e.preventDefault();
+                    const start = inputSource.selectionStart;
+                    const end = inputSource.selectionEnd;
+                    const beforeText = inputSource.value;
+                    let newline = beforeText.lastIndexOf("\n", start - 1);
+                    if (e.shiftKey) {
+                        // Unindent line two spaces
+                        if (newline + 2 <= beforeText.length && beforeText.slice(newline + 1, newline + 3) === "  ") {
+                            inputSource.value = beforeText.slice(0, newline + 1) + beforeText.slice(newline + 3);
+                            selectRange(start - 2, start - 2);
+                        }
+                    } else {
+                        if (start === end) {
+                            // Autocomplete
+                            const beforeMatch = beforeText.slice(newline + 1, start).match(/\w+$/);
+                            if (beforeMatch) {
+                                const afterMatch = beforeText.slice(start).match(/^\w+/);
+                                const afterMatchText = afterMatch ? afterMatch[0] : "";
+                                let currentTabCompletionIndex = -1;
+                                if (tabCompletionCandidates.length > 1) {
+                                    // Existing candidates
+                                    currentTabCompletionIndex = tabCompletionCandidates.indexOf(beforeMatch[0] + afterMatchText);
+                                } else if (!afterMatch) {
+                                    // New candidates
+                                    tabCompletionCandidates = Object.keys(types).filter(key => key.startsWith(beforeMatch[0]) && key !== beforeMatch[0]);
+                                } else {
+                                    // In middle of a word, skip tab completion
+                                    tabCompletionCandidates = [];
+                                }
+                                if (tabCompletionCandidates.length) {
+                                    const replacementText = tabCompletionCandidates[(currentTabCompletionIndex + 1) % tabCompletionCandidates.length];
+                                    const replacementStart = start - beforeMatch[0].length;
+                                    inputSource.value = beforeText.slice(0, replacementStart) + replacementText + beforeText.slice(end + afterMatchText.length);
+                                    selectRange(replacementStart + replacementText.length, replacementStart + replacementText.length);
+                                    rerender();
+                                    return;
+                                }
+                            }
+                        }
+                        // Insert two spaces
+                        inputSource.value = beforeText.slice(0, start) + "  " + beforeText.slice(end);
+                        selectRange(start + 2, start + 2);
+                    }
+                    rerender();
+                } else if ((e.metaKey ^ e.ctrlKey) && !e.altKey && !e.shiftKey) {
+                    const start = inputSource.selectionStart;
+                    const end = inputSource.selectionEnd;
+                    const beforeText = inputSource.value;
+                    const newlineIndex = beforeText.lastIndexOf("\n", start - 1);
+                    switch (e.key) {
+                        case '[':
+                            // Ctrl+[ to unindent line
+                            if (newlineIndex + 2 <= beforeText.length && beforeText.slice(newlineIndex + 1, newlineIndex + 3) === "  ") {
+                                inputSource.value = beforeText.slice(0, newlineIndex + 1) + beforeText.slice(newlineIndex + 3);
+                                selectRange(start - 2, end - 2);
+                                rerender();
+                            }
+                            break;
+                        case ']':
+                            // Ctrl+] to indent line
+                            inputSource.value = beforeText.slice(0, newlineIndex + 1) + "  " + beforeText.slice(newlineIndex + 1);
+                            selectRange(start + 2, end + 2);
+                            rerender();
+                            break;
+                        case '/':
+                            // Ctrl+/ to comment/uncomment line
+                            if (newlineIndex + 2 <= beforeText.length && beforeText.slice(newlineIndex + 1, newlineIndex + 3) === "# ") {
+                                // uncomment
+                                inputSource.value = beforeText.slice(0, newlineIndex + 1) + beforeText.slice(newlineIndex + 3);
+                                selectRange(start - 2, end - 2);
+                            } else {
+                                // comment
+                                inputSource.value = beforeText.slice(0, newlineIndex + 1) + "# " + beforeText.slice(newlineIndex + 1);
+                                selectRange(start + 2, end + 2);
+                            }
+                            rerender();
+                        default:
+                            syncScroll();
+                            break;
+                    }
+                } else {
+                    syncScroll();
+                }
+                if (tabCompletionCandidates.length != 0) {
+                    tabCompletionCandidates = [];
+                }
+            }, false);
+            document.body.addEventListener("keyup", syncScroll, false);
+            inputSource.addEventListener("dragover", (event) => {
+                event.preventDefault();
+            }, false);
+            document.body.addEventListener("drop", (event) => {
+                event.preventDefault();
+                if (event.dataTransfer.items) {
+                    for (const item of event.dataTransfer.items) {
+                        if (item.kind === "file") {
+                            item.getAsFile().text().then((text) => {
+                                inputSource.value = text;
+                                rerender();
+                            });
+                            break;
+                        }
+                    }
+                } else {
+                    for (const file of event.dataTransfer.files) {
+                        file.text().then((text) => {
+                            inputSource.value = text;
+                            rerender();
+                        });
+                        break;
+                    }
+                }
+            }, false);
+            function tryHashRender() {
+                const match = location.hash.match(/^#gist=(\w+)$/);
+                if (match) {
+                    const url = `https://api.github.com/gists/${match[1]}`;
+                    inputSource.value = `# Loading ${url}`;
+                    fetch(url).then(response => response.json()).then(json => {
+                        const files = json.files;
+                        for (const key in files) {
+                            if (/\.yaml$/.test(key)) {
+                                const file = files[key];
+                                if (file.truncated) {
+                                    return fetch(file.raw_url).then(fileResponse => fileResponse.text());
+                                } else {
+                                    return files[key].content;
+                                }
+                            }
+                        }
+                        return `# No yaml in gist ID ${match[1]}`;
+                    }).catch(e => `# Error loading ${url}: ${e}`).then(text => {
+                        inputSource.value = text;
+                        rerender();
+                    });
+                }
+            }
+            if (!tryHashRender()) {
+                if (window.localStorage) {
+                    const content = localStorage.getItem("deciduous-content");
+                    if (content !== null && content !== "") {
+                        inputSource.value = content;
+                    }
+                }
+            }
+            window.addEventListener("hashchange", tryHashRender, false);
+            // Themes
+            for (const key in themes) {
+                const option = document.createElement("option");
+                option.id = key;
+                option.innerText = key;
+                themePicker.appendChild(option);
+            }
+            themePicker.addEventListener("change", () => {
+                const match = lastInput.match(/^theme: \w+$/m);
+                let newValue;
+                if (match) {
+                    newValue = lastInput.slice(0, match.index) + "theme: " + themePicker.value + lastInput.slice(match.index + match[0].length);
+                } else {
+                    newValue = "theme: " + themePicker.value + "\n" + lastInput;
+                }
+                inputSource.value = newValue;
+                rerender();
+            });
+            rerender();
+            openGistLink.addEventListener("click", (event) => {
+                event.preventDefault();
+                const value = window.prompt("GitHub Gist URL or ID:", "");
+                if (/^[0-9a-f]+$/.test(value)) {
+                    location.hash = `#gist=${value}`;
+                } else {
+                    const match = value.match(/^https:\/\/gist\.github\.com\/\w+\/([0-9a-f]+)$/);
+                    if (match) {
+                        location.hash = `#gist=${match[1]}`;
+                    } else {
+                        return;
+                    }
+                }
+                tryHashRender();
+            }, false);
+            openLocalFileLink.addEventListener("click", (event) => {
+                event.preventDefault();
+                const input = document.createElement("input");
+                input.type = "file";
+                input.accept = ".yaml";
+                input.addEventListener("change", (event) => {
+                    if (event.target.files.length != 0) {
+                        const file = event.target.files[0];
+                        const reader = new FileReader();
+                        reader.readAsText(file, "UTF-8");
+                        reader.onload = (event) => {
+                            inputSource.value = event.target.result;
+                            toggleClass(document.getElementById("importWrapper"), "active");
+                            rerender();
+                        };
+                    }
+                });
+                input.click();
+            });
+            // Focus the textarea so that users know it's editable
+            inputSource.selectionStart = inputSource.selectionEnd = 0;
+            inputSource.focus();
+            // Make the dragger draggable
+            const dragger = document.getElementById("dragger");
+            dragger.style.left = "40%";
+            const leftPane = document.getElementById("leftPane");
+            let currentPercentage = 40;
+            if (window.localStorage) {
+                currentPercentage = localStorage.getItem("deciduous-divider") || 40;
+            }
+            function updateDivider(percent) {
+                dragger.style.left = percent + "%";
+                leftPane.style.width = percent + "%";
+                rightPane.style.left = percent + "%";
+                rightPane.style.width = (100 - percent) + "%";
+                currentPercentage = percent;
+            }
+            function mouseMove(e) {
+                const clientWidth = document.body.clientWidth;
+                updateDivider(Math.max(Math.min(e.clientX, clientWidth - 200), 200) * 100 / clientWidth);
+            }
+            function mouseUp(e) {
+                document.body.removeEventListener("mousemove", mouseMove);
+                document.body.removeEventListener("mouseup", mouseUp);
+                if (window.localStorage) {
+                    localStorage.setItem("deciduous-divider", currentPercentage);
+                }
+            }
+            dragger.addEventListener("mousedown", e => {
+                document.body.addEventListener("mousemove", mouseMove, false);
+                document.body.addEventListener("mouseup", mouseUp, false);
+            }, false);
+            updateDivider(currentPercentage);
+            downloadPngLink.addEventListener("mouseover", e => {
+                // Prepare the PNG download link only on demand, since drawing the SVG and compressing a PNG can be slow
+                if (lastPngObjectURL == "") {
+                    const image = document.createElement("img");
+                    image.onload = () => {
+                        if (lastPngObjectURL != "") {
+                            return;
+                        }
+                        const canvas = document.createElement("canvas");
+                        canvas.width = image.width;
+                        canvas.height = image.height;
+                        canvas.style.display = "none";
+                        document.body.appendChild(canvas);
+                        const context = canvas.getContext("2d");
+                        context.drawImage(image, 0, 0);
+                        canvas.toBlob(blob => {
+                            if (lastPngObjectURL != "") {
+                                return;
+                            }
+                            downloadPngLink.href = lastPngObjectURL = URL.createObjectURL(blob);
+                            document.body.removeChild(canvas);
+                        });
+                    };
+                    image.src = lastSvgObjectURL;
+                }
+            }, false);
+            // Dropdowns
+
+            function toggleClass(element, name) {
+                const className = element.className;
+                if (className == "") {
+                    element.className = name;
+                } else {
+                    const classes = className.split(" ");
+                    const index = classes.indexOf(name);
+                    if (index == -1) {
+                        classes.push(name);
+                    } else {
+                        classes.splice(index, 1);
+                    }
+                    element.className = classes.join(" ");
+                }
+            }
+            document.getElementById("downloadHoverArea").addEventListener("click", e => {
+                toggleClass(document.getElementById("downloadWrapper"), "active");
+                e.preventDefault();
+            }, false);
+            document.getElementById("importHoverArea").addEventListener("click", e => {
+                toggleClass(document.getElementById("importWrapper"), "active");
+                e.preventDefault();
+            }, false);
+        });
+    </script>
+
+</body>
+
+</html>
