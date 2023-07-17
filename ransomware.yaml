@@ -1,0 +1,191 @@
+theme: cosive
+title: Attack Tree for Ransomware
+
+facts:
+- ransomware: Ransomware
+  from:
+  - reality
+- reconnaissance: 'Reconnaissance'
+  from:
+  - ransomware:
+- resource_development: 'Resource Development'
+  from:
+  - ransomware:
+- initial_access:
+  from:
+  - ransomware:
+- execution:
+  from:
+  - ransomware:
+- persistence:
+  from:
+  - ransomware:
+- privilege_escalation:
+  from:
+  - ransomware:
+- defense_evasion:
+  from:
+  - ransomware:
+- credential_access:
+  from:
+  - ransomware:
+- discovery:
+  from:
+  - ransomware:
+- lateral_movement:
+  from:
+  - ransomware:
+- collection:
+  from:
+  - ransomware:
+- command_and_control:
+  from:
+  - ransomware:
+- exfiltration:
+  from:
+  - ransomware:
+- impact:
+  from:
+  - ransomware:
+
+attacks:
+- T1566_001: Spearphishing Attachment
+  from:
+  - initial_access
+- T1078_003: Local Accounts
+  from:
+  - initial_access
+- T1059_001: PowerShell use
+  from:
+  - execution
+- T1059_003: Windows Command Shell
+  from:
+  - execution
+- T1027_010: Command Obfuscation
+  from: 
+  - defense_evasion
+- T1036_008: Masquerade File Type
+  from:
+  - defense_evasion
+- T1055: Process Injection
+  from:
+  - defense_evasion
+  - privilege_escalation
+- T1046: Network Service Discovery
+  from:
+  - discovery
+
+- T1039: Data from Network Shared Drive
+  from:
+  - collection
+  - T1046
+- T1021_001: Remote Desktop Protocol
+  from:
+  - lateral_movement
+- T1003_001: OS Credential Dumping - LSASS Memory
+  from:
+  - credential_access
+
+
+
+
+
+
+mitigations:
+- multi_factor_authentication: Use strong two-factor or multi-factor authentication
+  from:
+  - T1566_001
+  - T1021_001
+- user_training: 
+  from:
+  - T1566_001
+- M1021: Restrict Web-Based Content
+  from:
+  - T1566_001
+- M1027: Password Policies
+  from:
+  - T1078_003
+- M1026: Privileged Account Management
+  from:
+  - T1059_001
+  - T1078_003
+  - T1021_001
+  - T1003_001
+- M1049: Antivirus/Antimalware
+  from:
+  - T1027_010
+  - T1036_008
+- M1040: Behavior Prevention on Endpoint
+  from:
+  - T1027_010
+  - T1036_008
+  - T1003_001
+- M1053: Data Backup
+  from:
+  - T1486
+- M1038: Execution Prevention
+  from:
+  - T1036_008
+- M1030: Network Segmentation
+  from:
+  - T1489
+  - T1048_003
+  - T1021_001
+- M1022: Restrict File and Directory Permissions
+  from:
+  - T1489
+- M1024: Restrict Registry Permissions
+  from:
+  - T1489
+- M1018: User Account Management
+  from:
+  - T1489
+  - T1021_001
+- M1057: Data loss prevention
+  from:
+  - T1048_003
+- M1037: Filter network traffic
+  from:
+  - T1048_003
+- M1031: Network Intrusion prevention
+  from:
+  - T1048_003
+- M1028: Operating system configuration
+  from:
+  - T1021_001
+  - T1003_001
+- M1035: Limit access to resource over network
+  from:
+  - T1021_001
+- M1042: Disable or remove feature or program\
+  from:
+  - T1021_001
+- M1047: Audit
+  from:
+  - T1021_001
+
+goals:
+- T1486: Data Encrypted for Impact (attackers win)
+  from:
+  - T1059_001
+  - impact
+  - Availability
+- T1490: Inhibit system recovery (attackers win)
+  from:
+  - T1059_003
+  - impact
+  - Availability
+- T1489: Service Stop (attacker wins)
+  from:
+  - impact
+  - Availability
+- T1048_003: Exfiltration Over Unencrypted Non-C2 Protocol
+  from:
+  - exfiltration
+
+cias:
+- Availability: Impacts availability
+  from:
+
+- Confidentiality:
+- Integrity:
