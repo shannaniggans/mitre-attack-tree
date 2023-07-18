@@ -293,162 +293,188 @@
 
 <body>
     <div id="leftPane">
-        <h2 class="sectionHeader">Text Editor</h2>
+        <h1 class="sectionHeader">Text Editor</h2>
         <textarea id="inputSource" spellcheck="false">
-title: (Example) Attack Tree for S3 Bucket with Video Recordings
+theme: cosive
+title: Attack Tree for Ransomware
 
 facts:
-- wayback: API cache (e.g. Wayback Machine)
+- ransomware: Ransomware
   from:
-  - reality: '#yolosec'
-- public_bucket: S3 bucket set to public
+  - reality
+- initial_access:
   from:
-  - bucket_search: '#yolosec'
-- subsystem_with_access: Subsystem with access to bucket data
+  - ransomware:
+- execution:
   from:
-  - compromise_user_creds
+  - ransomware:
+- persistence:
+  from:
+  - ransomware:
+- privilege_escalation:
+  from:
+  - ransomware:
+- defense_evasion:
+  from:
+  - ransomware:
+- credential_access:
+  from:
+  - ransomware:
+- discovery:
+  from:
+  - ransomware:
+- lateral_movement:
+  from:
+  - ransomware:
+- collection:
+  from:
+  - ransomware:
+- command_and_control:
+  from:
+  - ransomware:
+- exfiltration:
+  from:
+  - ransomware:
+- impact:
+  from:
+  - ransomware:
 
 attacks:
-- bucket_search: AWS public buckets search
+- T1566_001: Spearphishing Attachment
   from:
-  - disallow_crawling
-- brute_force:
+  - initial_access
+- T1078_003: Local Accounts
   from:
-  - private_bucket
-- phishing:
+  - initial_access
+- T1059_001: PowerShell use
   from:
-  - private_bucket
-  - internal_only_bucket:
-    backwards: true
-  - access_control_server_side:
-    backwards: true
-- compromise_user_creds: Compromise user credentials
+  - execution
+- T1059_003: Windows Command Shell
   from:
-  - brute_force
-  - phishing
-- analyze_web_client: Manually analyze web client for access control misconfig
+  - execution
+- T1027_010: Command Obfuscation
+  from: 
+  - defense_evasion
+- T1036_008: Masquerade File Type
   from:
-  - lock_down_acls
-- compromise_admin_creds: Compromise admin creds
+  - defense_evasion
+- T1055: Process Injection
   from:
-  - phishing
-- compromise_aws_creds: Compromise AWS admin creds
+  - defense_evasion
+  - privilege_escalation
+- T1046: Network Service Discovery
   from:
-  - phishing
-- intercept_2fa: Intercept 2FA
+  - discovery
+
+- T1039: Data from Network Shared Drive
   from:
-  - 2fa
-- ssh_to_public_machine: SSH to an accessible machine
+  - collection
+  - T1046
+- T1021_001: Remote Desktop Protocol
   from:
-  - compromise_admin_creds: '#yolosec'
-  - compromise_aws_creds:
-  - intercept_2fa
-- lateral_movement_to_machine_with_access: Lateral movement to machine with access to target bucket
+  - lateral_movement
+- T1003_001: OS Credential Dumping - LSASS Memory
   from:
-  - ip_allowlist_for_ssh
-- compromise_presigned: Compromise presigned URLs
-  from:
-  - phishing
-- compromise_quickly: Compromise URL within N time period
-  from:
-  - short_lived_presigning
-- recon_on_s3: Recon on S3 buckets
-  from:
-  - private_bucket
-  - disallow_bucket_urls:
-    backwards: true
-  - 2fa:
-    backwards: true
-- find_systems_with_access: Find systems with R/W access to target bucket
-  from:
-  - recon_on_s3: '#yolosec'
-- exploit_known_vulns: Exploit known 3rd party library vulns
-  from:
-  - find_systems_with_access
-- buy_0day:
-  from:
-  - vuln_scanning
-- discover_0day: Manual discovery of 0day
-  from:
-  - vuln_scanning
-- exploit_vulns: Exploit vulns
-  from:
-  - buy_0day
-  - discover_0day
-- aws_0day: 0day in AWS multitenant systems
-  from:
-  - ips
-- supply_chain_backdoor: Supply chain compromise (backdoor)
-  from:
-  - single_tenant_hsm
+  - credential_access
 
 mitigations:
-- disallow_crawling: Disallow crawling on site maps
+- multi_factor_authentication: Use strong two-factor or multi-factor authentication
   from:
-  - reality
-- private_bucket: Auth required / ACLs (private bucket)
+  - T1566_001
+  - T1021_001
+- user_training: 
   from:
-  - reality
-- lock_down_acls: Lock down web client with creds / ACLs
+  - T1566_001
+- M1021: Restrict Web-Based Content
   from:
-  - subsystem_with_access
-- access_control_server_side: Perform all access control server side
+  - T1566_001
+- M1027: Password Policies
   from:
-  - analyze_web_client
-- 2fa: 2FA
+  - T1078_003
+- M1026: Privileged Account Management
   from:
-  - compromise_admin_creds: '#yolosec'
-  - compromise_aws_creds
-- ip_allowlist_for_ssh: IP allowlist for SSH
+  - T1059_001
+  - T1078_003
+  - T1021_001
+  - T1003_001
+- M1049: Antivirus/Antimalware
   from:
-  - ssh_to_public_machine
-- short_lived_presigning: Make URL short lived
+  - T1027_010
+  - T1036_008
+- M1040: Behavior Prevention on Endpoint
   from:
-  - compromise_presigned
-- disallow_bucket_urls: Disallow the use of URLs to access buckets
-  from:
-  - compromise_quickly
-- vuln_scanning: 3rd party library checking / vuln scanning
-  from:
-  - exploit_known_vulns
-- ips: Exploit prevention / detection
-  from:
-  - exploit_vulns
-- single_tenant_hsm: Use single tenant AWS HSM
-  from:
-  - aws_0day:
-    implemented: false
-- internal_only_bucket: No public system has R/W access (internal only)
-  from:
-  - find_systems_with_access
-
-goals:
-- s3_asset: Access video recordings in S3 bucket (attackers win)
-  from:
-  - wayback: '#yolosec'
-  - public_bucket
-  - subsystem_with_access
-  - analyze_web_client
-  - lateral_movement_to_machine_with_access
-  - compromise_presigned
-  - compromise_quickly
-  - exploit_vulns
-  - aws_0day
-  - supply_chain_backdoor
-- company_bank_account: Access company bank account
-  from:
-  - intercept_2fa
-
-cias:
-- Availability:
+  - T1027_010
+  - T1036_008
+  - T1003_001
+- M1053: Data Backup
   from:
   - T1486
-- Confidentiality:
-- Integrity:
+- M1038: Execution Prevention
+  from:
+  - T1036_008
+- M1030: Network Segmentation
+  from:
+  - T1489
+  - T1048_003
+  - T1021_001
+- M1022: Restrict File and Directory Permissions
+  from:
+  - T1489
+- M1024: Restrict Registry Permissions
+  from:
+  - T1489
+- M1018: User Account Management
+  from:
+  - T1489
+  - T1021_001
+- M1057: Data loss prevention
+  from:
+  - T1048_003
+- M1037: Filter network traffic
+  from:
+  - T1048_003
+- M1031: Network Intrusion prevention
+  from:
+  - T1048_003
+- M1028: Operating system configuration
+  from:
+  - T1021_001
+  - T1003_001
+- M1035: Limit access to resource over network
+  from:
+  - T1021_001
+- M1042: Disable or remove feature or program\
+  from:
+  - T1021_001
+- M1047: Audit
+  from:
+  - T1021_001
 
+goals:
+- T1486: [AVAILABILITY] Data Encrypted for Impact (attackers win)
+  from:
+  - T1059_001
+  - impact
+  - Availability
+- T1490: [AVAILABILITY] Inhibit system recovery (attackers win)
+  from:
+  - T1059_003
+  - impact
+  - Availability
+- T1489: [AVAILABILITY] Service Stop (attacker wins)
+  from:
+  - impact
+  - Availability
+- T1048_003: [CONFIDENTIALITY] Exfiltration Over Unencrypted Non-C2 Protocol
+  from:
+  - exfiltration
+  
 # filter can be used to show only paths that flow through specific nodes
 filter:
-- s3_asset
+#- initial_access
+#- execution
+#- impact
+            
 </textarea>
         <pre id="highlighting" aria-hidden="true"><code id="inputHighlighted"></code></pre>
     </div>
