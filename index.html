@@ -299,9 +299,15 @@ theme: cosive
 title: Attack Tree for Ransomware
 
 facts:
-- ransomware: Ransomware
+- ransomware:
   from:
-  - reality
+  - reality: 
+- reconnaissance:
+  from:
+  - ransomware:
+- resource_development:
+  from:
+  - ransomware:
 - initial_access:
   from:
   - ransomware:
@@ -408,7 +414,8 @@ mitigations:
   - T1003_001
 - M1053: Data Backup
   from:
-  - T1486
+  - T1486:
+    backwards: true
 - M1038: Execution Prevention
   from:
   - T1036_008
@@ -451,24 +458,21 @@ mitigations:
   - T1021_001
 
 goals:
-- T1486: [AVAILABILITY] Data Encrypted for Impact (attackers win)
+- T1486: Data Encrypted for Impact (attackers win) [AVAILABILITY]
   from:
-  - T1059_001
-  - impact
-  - Availability
-- T1490: [AVAILABILITY] Inhibit system recovery (attackers win)
+  - T1059_001:
+  - impact: '#Availability'
+- T1490: Inhibit system recovery (attackers win)
   from:
   - T1059_003
-  - impact
-  - Availability
-- T1489: [AVAILABILITY] Service Stop (attacker wins)
+  - impact: '#Availability'
+- T1489: Service Stop (attacker wins)
   from:
-  - impact
-  - Availability
-- T1048_003: [CONFIDENTIALITY] Exfiltration Over Unencrypted Non-C2 Protocol
+  - impact: '#Availability'
+- T1048_003: Exfiltration Over Unencrypted Non-C2 Protocol
   from:
-  - exfiltration
-  
+  - exfiltration: '#Confidentiality'
+
 # filter can be used to show only paths that flow through specific nodes
 filter:
 #- initial_access
