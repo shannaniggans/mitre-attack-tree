@@ -386,23 +386,24 @@ attacks:
 mitigations:
 - multi_factor_authentication: Use strong two-factor or multi-factor authentication
   from:
-  - T1566_001
-  - T1021_001
+  - T1566_001: 'Control'
+  - T1021_001: 'Control'
 - user_training: 
   from:
-  - T1566_001
+  - T1566_001: 'Control'
 - M1021: Restrict Web-Based Content
   from:
-  - T1566_001
+  - T1566_001: 'Control'
 - M1027: Password Policies
   from:
   - T1078_003
 - M1026: Privileged Account Management
   from:
-  - T1059_001
-  - T1078_003
-  - T1021_001
-  - T1003_001
+  - T1078_003: 'Control'
+  - T1021_001: 'Control'
+  - T1003_001: 'Control'
+  - T1486:
+    backwards: true
 - M1049: Antivirus/Antimalware
   from:
   - T1027_010
@@ -475,7 +476,7 @@ goals:
 
 # filter can be used to show only paths that flow through specific nodes
 filter:
-#- initial_access
+# - initial_access
 #- execution
 #- impact
             
