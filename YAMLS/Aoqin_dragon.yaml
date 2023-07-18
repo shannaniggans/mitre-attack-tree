@@ -1,0 +1,96 @@
+theme: cosive
+title: Attack Tree for Aoqin Dragon
+
+facts:
+- G1007: 'Threat Group - Aoqin Dragon'
+  from:
+  - reality
+- resource_development:
+  from:
+  - G1007:
+- initial_access:
+  from:
+  - G1007:
+- execution:
+  from:
+  - G1007:
+- defense_evasion:
+  from:
+  - G1007:
+- discovery:
+  from:
+  - G1007:
+- lateral_movement:
+  from:
+  - G1007:
+
+attacks:
+- T1587_001: 'Develop Capabilities: Malware'
+  from:
+  - resource_development
+- T1588_002: 'Obtain Capabilities: Tool'
+  from:
+  - resource_development
+- T1091: 'Replication Through Removable Media'
+  from:
+  - initial_access
+- T1203: 'Exploitation for Client Execution'
+  from:
+  - execution
+- T1204_002: 'User Execution: Malicious File'
+  from:
+  - execution
+	
+	
+mitigations:
+- M1056: Pre-compromise -  cannot be easily mitigated
+  from:
+  - T1587_001:
+    backwards: true
+  - T1588_002:
+    backwards: true
+- M1040: 'Behavior Prevention on Endpoint'
+  from:
+  - T1091:
+    backwards: true
+  - T1204_002:
+    backwards: true
+- M1042: 'Disable or Remove Feature or Program'
+  from:
+  - T1091:
+    backwards: true
+- M1034: 'Limit Hardware Installation'
+  from:
+  - T1091:
+    backwards: true
+- M1048: 'Application Isolation and Sandboxing'
+  from:
+  - T1203:
+    backwards: true
+- M1050: 'Exploit Protection'
+  from:
+  - T1203:
+    backwards: true
+- M1038: 'Execution Prevention' 
+  from:
+  - T1204_002:
+    backwards: true
+- M1017: 'User Training'
+  from:
+  - T1204_002:
+    backwards: true
+
+goals:
+- cyber_espionage: 
+  label: 'Motivation'
+# '#Attacker Motivation'
+
+  
+# filter can be used to show only paths that flow through specific nodes
+filter:
+#- initial_access
+#- execution
+#- impact
+
+# References
+# https://www.sentinelone.com/labs/aoqin-dragon-newly-discovered-chinese-linked-apt-has-been-quietly-spying-on-organizations-for-10-years/
