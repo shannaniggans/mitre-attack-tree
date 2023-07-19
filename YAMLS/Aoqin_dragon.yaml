@@ -14,6 +14,12 @@ facts:
 - execution:
   from:
   - G1007:
+- persistence:
+  from:
+  - G1007:
+- privilege_escalation:
+  from:
+  - G1007:
 - defense_evasion:
   from:
   - G1007:
@@ -21,6 +27,12 @@ facts:
   from:
   - G1007:
 - lateral_movement:
+  from:
+  - G1007:
+- collection:
+  from:
+  - G1007:
+- command_and_control:
   from:
   - G1007:
 
@@ -31,6 +43,9 @@ attacks:
 - T1588_002: 'Obtain Capabilities: Tool'
   from:
   - resource_development
+- T1566: Phishing
+  from:
+  - initial_access
 - T1091: 'Replication Through Removable Media'
   from:
   - initial_access
@@ -40,20 +55,71 @@ attacks:
 - T1204_002: 'User Execution: Malicious File'
   from:
   - execution
+- T1569: System Services
+  from:
+  - execution
+- T1547: Boot or Logon Autostart Execution
+  from:
+  - persistence
+- T1055: Process Injection
+  from:
+  - privilege_escalation
+  - defense_evasion
+- T1055_001: Dynamic-link Library Injection
+  from:
+  - privilege_escalation
+- T1027_002: Obfuscated Files or Information
+  from:
+  - privilege_escalation
+- T1036_005: Masquerading - Match Legitimate Name or Location
+  from:
+  - defense_evasion
+- T1033: System Owner/User Discovery
+  from:
+  - discovery
+- T1082: System Information Discovery
+  from:
+  - discovery
+- T1560: Archive Collected Data
+  from:
+  - collection
+- T1071_001: Application Layer Protocol - Web Protocols
+  from:
+  - command_and_control
+- T1071_004: Application Layer Protocol - DNS
+  from:
+  - command_and_control
+- T1571: Non-Standard Port
+  from:
+  - command_and_control
+- T1132: Data Encoding
+  from:
+  - command_and_control
+
 	
 	
 mitigations:
-- M1056: Pre-compromise -  cannot be easily mitigated
+- M1056: Cannot be easily mitigated
   from:
-  - T1587_001:
+  - T1587_001: 'Pre-compromise'
     backwards: true
-  - T1588_002:
+  - T1588_002: 'Pre-compromise'
+    backwards: true
+  - T1547: 'LOLbins'
+    backwards: true
+  - T1033: 'LOLbins'
     backwards: true
 - M1040: 'Behavior Prevention on Endpoint'
   from:
   - T1091:
     backwards: true
   - T1204_002:
+    backwards: true
+  - T1569:
+    backwards: true
+  - T1055:
+    backwards: true
+  - T1055_001:
     backwards: true
 - M1042: 'Disable or Remove Feature or Program'
   from:
@@ -67,22 +133,90 @@ mitigations:
   from:
   - T1203:
     backwards: true
-- M1050: 'Exploit Protection'
+- M1050: 'Exploit Protection' 
   from:
-  - T1203:
+  - T1203: 
     backwards: true
 - M1038: 'Execution Prevention' 
   from:
   - T1204_002:
     backwards: true
+  - T1036_005:
+    backwards: true
 - M1017: 'User Training'
   from:
   - T1204_002:
     backwards: true
+  - T1566:
+    backwards: true
+- M1021: Restrict Web-Based Content
+  from:
+  - T1566:
+    backwards: true
+- M1049: Antivirus/Antimalware
+  from:
+  - T1566:
+    backwards: true
+  - T1027_002:
+    backwards: true
+- M1031: Network Intrusion Prevention
+  from:
+  - T1566:
+    backwards: true
+  - T1071_001:
+    backwards: true
+  - T1071_004:
+    backwards: true
+  - T1571:
+    backwards: true
+  - T1132:
+    backwards: true
+- M1054: Software Configuration
+  from:
+  - T1566:
+    backwards: true
+- M1026: Privileged Account Management
+  from:
+  - T1569:
+    backwards: true
+  - T1055:
+    backwards: true
+- M1022: Restrict File and Directory Permissions
+  from:
+  - T1569:
+    backwards: true
+  - T1036_005:
+    backwards: true
+- M1018: User Account Management
+  from:
+  - T1569:
+    backwards: true
+- M1045: Code Signing
+  from:
+  - T1036_005:
+    backwards: true
+- M1047: Audit
+  from:
+  - T1560:
+    backwards: true
+- M1037: Filter network traffic
+  from:
+  - T1071_004:
+    backwards: true
+- M1030: Network Segmentation
+  from:
+  - T1571:
+    backwards: true
 
 goals:
-- cyber_espionage: 
-  label: 'Motivation'
+- cyber_espionage: Cyberespionage [Confidentiality]
+  from:
+  - T1560
+  - T1071_001
+  - T1071_004
+  - T1571
+  - T1132
+
 # '#Attacker Motivation'
 
   
@@ -91,6 +225,8 @@ filter:
 #- initial_access
 #- execution
 #- impact
+#- M1017 #User Training
 
 # References
 # https://www.sentinelone.com/labs/aoqin-dragon-newly-discovered-chinese-linked-apt-has-been-quietly-spying-on-organizations-for-10-years/
+# https://mitre-attack.github.io/attack-navigator//#layerURL=https%3A%2F%2Fattack.mitre.org%2Fgroups%2FG1007%2FG1007-enterprise-layer.json
