@@ -74,7 +74,6 @@ attacks:
 - T1046: Network Service Discovery
   from:
   - discovery
-
 - T1039: Data from Network Shared Drive
   from:
   - collection
@@ -85,97 +84,141 @@ attacks:
 - T1003_001: OS Credential Dumping - LSASS Memory
   from:
   - credential_access
+- T1486: Data Encrypted for Impact
+  from:
+  - T1059_001:
+  - impact: 
+- T1490: Inhibit system recovery
+  from:
+  - T1059_003
+  - impact: 
+- T1489: Service Stop (attacker wins)
+  from:
+  - impact: 
+- T1048_003: Exfiltration Over Unencrypted Non-C2 Protocol
+  from:
+  - exfiltration:
 
 mitigations:
+- M1056: Cannot be easily mitigated
+  from:
+  - T1039:
+    backwards: true
+
 - multi_factor_authentication: Use strong two-factor or multi-factor authentication
   from:
-  - T1566_001: 'Control'
-  - T1021_001: 'Control'
+  - T1566_001: 
+    backwards: true
+  - T1021_001: 
+    backwards: true
 - user_training: 
   from:
-  - T1566_001: 'Control'
+  - T1566_001:
+    backwards: true
 - M1021: Restrict Web-Based Content
   from:
-  - T1566_001: 'Control'
+  - T1566_001:
+    backwards: true
 - M1027: Password Policies
   from:
-  - T1078_003
+  - T1078_003:
+    backwards: true
 - M1026: Privileged Account Management
   from:
-  - T1078_003: 'Control'
-  - T1021_001: 'Control'
-  - T1003_001: 'Control'
+  - T1078_003:
+    backwards: true
+  - T1021_001:
+    backwards: true
+  - T1003_001:
+    backwards: true
   - T1486:
     backwards: true
 - M1049: Antivirus/Antimalware
   from:
-  - T1027_010
-  - T1036_008
+  - T1027_010:
+    backwards: true
+  - T1036_008:
+    backwards: true
 - M1040: Behavior Prevention on Endpoint
   from:
-  - T1027_010
-  - T1036_008
-  - T1003_001
+  - T1027_010:
+    backwards: true
+  - T1036_008:
+    backwards: true
+  - T1003_001:
+    backwards: true
 - M1053: Data Backup
   from:
   - T1486:
     backwards: true
 - M1038: Execution Prevention
   from:
-  - T1036_008
+  - T1036_008:
+    backwards: true
 - M1030: Network Segmentation
   from:
-  - T1489
-  - T1048_003
-  - T1021_001
+  - T1489:
+    backwards: true
+  - T1048_003:
+    backwards: true
+  - T1021_001:
+    backwards: true
 - M1022: Restrict File and Directory Permissions
   from:
-  - T1489
+  - T1489:
+    backwards: true
 - M1024: Restrict Registry Permissions
   from:
-  - T1489
+  - T1489:
+    backwards: true
 - M1018: User Account Management
   from:
-  - T1489
-  - T1021_001
+  - T1489:
+    backwards: true
+  - T1021_001:
+    backwards: true
 - M1057: Data loss prevention
   from:
-  - T1048_003
+  - T1048_003:
+    backwards: true
 - M1037: Filter network traffic
   from:
-  - T1048_003
+  - T1048_003:
+    backwards: true
 - M1031: Network Intrusion prevention
   from:
-  - T1048_003
+  - T1048_003:
+    backwards: true
 - M1028: Operating system configuration
   from:
-  - T1021_001
-  - T1003_001
+  - T1021_001:
+    backwards: true
+  - T1003_001:
+    backwards: true
 - M1035: Limit access to resource over network
   from:
-  - T1021_001
+  - T1021_001:
+    backwards: true
 - M1042: Disable or remove feature or program\
   from:
-  - T1021_001
+  - T1021_001:
+    backwards: true
 - M1047: Audit
   from:
-  - T1021_001
+  - T1021_001:
+    backwards: true
 
 goals:
-- T1486: Data Encrypted for Impact (attackers win) [AVAILABILITY]
+- extortion_confidentiality: Cyber-extortion [Confidentiality]
   from:
-  - T1059_001:
-  - impact: '#Availability'
-- T1490: Inhibit system recovery (attackers win)
+  - T1039
+  - T1048_003
+
+- extortion_availability: Cyber-extortion [Availability]
   from:
-  - T1059_003
-  - impact: '#Availability'
-- T1489: Service Stop (attacker wins)
-  from:
-  - impact: '#Availability'
-- T1048_003: Exfiltration Over Unencrypted Non-C2 Protocol
-  from:
-  - exfiltration: '#Confidentiality'
+  - T1486
+  - T1490
+  - T1489
 
 # filter can be used to show only paths that flow through specific nodes
 filter:
