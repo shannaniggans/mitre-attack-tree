@@ -31,6 +31,7 @@
             margin: 0;
             overflow: hidden;
             font-family: "Helvetica Neue", Helvetica, arial, sans-serif;
+            
         }
 
         a {
@@ -117,7 +118,6 @@
             height: 100%;
             overflow: auto;
             font-family: 'Josefin Sans', sans-serif;
-            font-size: 50px;
         }
 
         .right-header {
@@ -487,7 +487,7 @@ filter:
     <div class="contentArea" id="rightPane">
         <div class="right-header">
             <div class="logo">
-                <img src="./deciduous-logo.png" alt="Deciduous logo" height="75" width="198">
+                <img src="https://github.com/rpetrich/deciduous/blob/master/deciduous-logo.png" alt="Deciduous logo" height="75" width="198">
             </div>
             <div class="menuWrapper">
                 <label for="themePicker">Theme: </label><select id="themePicker"></select>
@@ -639,7 +639,7 @@ digraph {
     ranksep="0.4";
     label=${JSON.stringify(typeof parsed.title === "string" ? parsed.title : "")};
     labelloc="t";
-    fontname=${JSON.stringify(font)};
+    fontname=${JSON.stringify(font)} fontsize=30;
     node [ shape="plaintext" style="filled, rounded" fontname=${JSON.stringify(font)} margin=0.2 ]
     edge [ fontname=${JSON.stringify(font)} fontsize=12 color="${theme["edge"]}" ]
 
