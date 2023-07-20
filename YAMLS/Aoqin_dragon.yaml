@@ -95,8 +95,6 @@ attacks:
 - T1132: Data Encoding
   from:
   - command_and_control
-
-	
 	
 mitigations:
 - M1056: Cannot be easily mitigated
@@ -208,16 +206,10 @@ mitigations:
   - T1571:
     backwards: true
 
-goals:
-- cyber_espionage: Cyberespionage [Confidentiality]
-  from:
-  - T1560
-  - T1071_001
-  - T1071_004
-  - T1571
-  - T1132
+detections:
 
-# '#Attacker Motivation'
+
+
 
   
 # filter can be used to show only paths that flow through specific nodes
