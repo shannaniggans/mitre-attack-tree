@@ -224,8 +224,8 @@
             color: #1b0533;
         }
 
-        #highlighting .goals,
-        #highlighting .goal {
+        #highlighting .detections,
+        #highlighting .detection {
             color: #5f00c2;
         }
 
@@ -459,7 +459,7 @@ mitigations:
   from:
   - T1021_001
 
-goals:
+detections:
 - T1486: Data Encrypted for Impact (attackers win) [AVAILABILITY]
   from:
   - T1059_001:
@@ -569,8 +569,8 @@ filter:
                 "fact-fill": "#C6CCD2",
                 "attack-fill": "#ED96AC",
                 "mitigation-fill": "#ABD2FA",
-                "goal-fill": "#DB2955",
-                "goal-text": "#FFFFFF",
+                "detection-fill": "#DB2955",
+                "detection-text": "#FFFFFF",
                 "cia-fill": "#c23a00",
                 "cia-text": "#FFFFFF",
             },
@@ -585,8 +585,8 @@ filter:
                 "fact-fill": "#D2D5DD",
                 "attack-fill": "#ff92cc",
                 "mitigation-fill": "#B9D6F2",
-                "goal-fill": "#5f00c2",
-                "goal-text": "#FFFFFF",
+                "detection-fill": "#5f00c2",
+                "detection-text": "#FFFFFF",
                 "cia-fill": "#c23a00",
                 "cia-text": "#FFFFFF",
             },
@@ -601,8 +601,8 @@ filter:
                 "fact-fill": "#D2D5DD",
                 "attack-fill": "#FF7EC3",
                 "mitigation-fill": "#CCCCFF",
-                "goal-fill": "#5f00c2",
-                "goal-text": "#FFFFFF",
+                "detection-fill": "#5f00c2",
+                "detection-text": "#FFFFFF",
                 "cia-fill": "#c23a00",
                 "cia-text": "#FFFFFF",
             },
@@ -617,8 +617,8 @@ filter:
                 "fact-fill": "#bdbdbd",
                 "attack-fill": "#ee7b79",
                 "mitigation-fill": "#29b6f6",
-                "goal-fill": "#e53935",
-                "goal-text": "#FFFFFF",
+                "detection-fill": "#e53935",
+                "detection-text": "#FFFFFF",
                 "cia-fill": "#212020",
                 "cia-text": "#FFFFFF",
             },
@@ -647,7 +647,7 @@ digraph {
     reality [ label="Threat Scenario" fillcolor="${theme["reality-fill"]}" fontcolor="${theme["reality-text"]}" ]
 
 `;
-            const goals = parsed.goals || [];
+            const detections = parsed.detections || [];
             const facts = parsed.facts || [];
             const attacks = parsed.attacks || [];
             const mitigations = parsed.mitigations || [];
@@ -657,7 +657,7 @@ digraph {
             const forwards = {};
             const forwardsAll = {};
             const backwards = {};
-            const allNodes = [...facts, ...attacks, ...mitigations, ...goals, ...cias];
+            const allNodes = [...facts, ...attacks, ...mitigations, ...detections, ...cias];
             const types = {};
             for (const node of allNodes) {
                 const [toName] = Object.entries(node)[0];
@@ -737,10 +737,10 @@ digraph {
                 ...nodes("mitigation", mitigations, {
                     fillcolor: theme["mitigation-fill"],
                 }),
-                `// goals`,
-                ...nodes("goal", goals, {
-                    fillcolor: theme["goal-fill"],
-                    fontcolor: theme["goal-text"],
+                `// detections`,
+                ...nodes("detection", detections, {
+                    fillcolor: theme["detection-fill"],
+                    fontcolor: theme["detection-text"],
                 }),
                 `// cias`,
                 ...nodes("cia", cias, {
@@ -781,10 +781,10 @@ digraph {
                     return edges;
                 }, []);
             }
-            const allEdgeLines = [...edges(cias, {}), ...edges(goals, {}), ...edges(attacks, {}), ...edges(mitigations, {}), ...edges(facts, {}),];
-            const goalNames = goals.map((goal) => {
-                const [goalName] = Object.entries(goal)[0];
-                return goalName;
+            const allEdgeLines = [...edges(cias, {}), ...edges(detections, {}), ...edges(attacks, {}), ...edges(mitigations, {}), ...edges(facts, {}),];
+            const detectionNames = detections.map((detection) => {
+                const [detectionName] = Object.entries(detection)[0];
+                return detectionName;
             });
             for (const [fromName, toNames] of Object.entries(forwards)) {
                 if (!shouldShow(fromName)) {
@@ -794,7 +794,7 @@ digraph {
                 const filteredToNames = [];
                 for (let i = 0; i < toNames.length; i++) {
                     copy.splice(i, 1);
-                    if (!anyDominates(forwards, copy, toNames[i]) && goalNames.indexOf(toNames[i]) == -1 && shouldShow(toNames[i])) {
+                    if (!anyDominates(forwards, copy, toNames[i]) && detectionNames.indexOf(toNames[i]) == -1 && shouldShow(toNames[i])) {
                         filteredToNames.push(toNames[i]);
                     }
                     copy.splice(i, 0, toNames[i]);
@@ -807,25 +807,25 @@ digraph {
     ${line(filteredToNames.map(mangleName).join(" -> "), { style: "invis" })}`);
                 }
             }
-            const shownGoals = goalNames.filter(shouldShow);
-            if (shownGoals > 1) {
+            const showndetections = detectionNames.filter(shouldShow);
+            if (showndetections > 1) {
 
-                subgraphs.push(`    subgraph goal_order {
+                subgraphs.push(`    subgraph detection_order {
         rank=same;
-        ${shownGoals.map(goalName => mangleName(goalName) + ";").join("\n        ")}
+        ${showndetections.map(detectionName => mangleName(detectionName) + ";").join("\n        ")}
     }`);
-                subgraphs.push("    " + line(shownGoals.join(" -> "), { style: "invis" }));
+                subgraphs.push("    " + line(showndetections.join(" -> "), { style: "invis" }));
             }
             subgraphs.push(`    { rank=min; reality; }`);
             for (const node of allNodes) {
                 const [toName] = Object.entries(node)[0];
-                if (shouldShow(toName) && !forwards[toName] && shownGoals.indexOf(toName) === -1) {
-                    for (const goalName of shownGoals) {
-                        subgraphs.push("    " + line(mangleName(toName) + " -> " + mangleName(goalName), { style: "invis", weight: 0 }));
+                if (shouldShow(toName) && !forwards[toName] && showndetections.indexOf(toName) === -1) {
+                    for (const detectionName of showndetections) {
+                        subgraphs.push("    " + line(mangleName(toName) + " -> " + mangleName(detectionName), { style: "invis", weight: 0 }));
                     }
                 }
             }
-            subgraphs.push(`    { rank=max; ${shownGoals.map(goalName => mangleName(goalName) + "; ").join("")}}`);
+            subgraphs.push(`    { rank=max; ${showndetections.map(detectionName => mangleName(detectionName) + "; ").join("")}}`);
             const footer = "\n\n}\n";
             return [header + "    " + allNodeLines.join("\n    ") + "\n\n    " + allEdgeLines.join("\n    ") + "\n\n    // subgraphs to give proper layout\n" + subgraphs.join("\n\n") + footer, typeof parsed.title === "string" ? parsed.title : "", types, themeName];
         }
@@ -872,7 +872,7 @@ digraph {
                     function updateTextArea() {
                         types["attacks"] = "attacks";
                         types["mitigations"] = "mitigations";
-                        types["goals"] = "goals";
+                        types["detections"] = "detections";
                         types["facts"] = "facts";
                         types["reality"] = "facts";
                         types["cias"] = "cias";
@@ -1009,7 +1009,7 @@ digraph {
                                 const node = title.textContent;
                                 const matches = node.match(/^(\w+)->(\w+)$/);
                                 if (matches) {
-                                    // Select the appropriate "from entry" inside the target attack, mitigation or goal
+                                    // Select the appropriate "from entry" inside the target attack, mitigation or detection
                                     const firstIndex = lastInput.indexOf("\n- " + matches[2]);
                                     if (firstIndex != -1) {
                                         let secondIndex = lastInput.indexOf("- " + matches[1], firstIndex + 4 + matches[2].length);
@@ -1018,7 +1018,7 @@ digraph {
                                         }
                                     }
                                 } else {
-                                    // Select a top level attack, mitigation or goal
+                                    // Select a top level attack, mitigation or detection
                                     const index = lastInput.indexOf("\n- " + node);
                                     if (index != -1) {
                                         selectRange(index + 3, index + 3 + node.length);
