@@ -1,0 +1,452 @@
+attacks:
+## Resource development techniques.
+- T1585: Establish Accounts
+  from: 
+  - resource_development
+- T1588_002: 'Obtain Capabilities: Tool'
+  from:
+  - resource_development
+- T1587_001: 'Develop Capabilities: Malware'
+  from:
+  - resource_development
+- T1585: Establish Accounts
+  from: 
+  - resource_development
+
+## Initial Access techniques.
+- T1566: Phishing
+  from:
+  - initial_access
+- T1091: 'Replication Through Removable Media'
+  from:
+  - initial_access
+- T1566_001: Spearphishing Attachment
+  from:
+  - initial_access
+- T1078_003: Local Accounts
+  from:
+  - initial_access
+
+
+## Execution techniques
+- T1059_001: PowerShell use
+  from:
+  - execution
+- T1059_003: Windows Command Shell
+  from:
+  - execution
+- T1203: 'Exploitation for Client Execution'
+  from:
+  - execution
+- T1204_002: 'User Execution: Malicious File'
+  from:
+  - execution
+- T1569: System Services
+  from:
+  - execution
+
+## Persistence techniques
+- T1078_004:	Cloud Accounts
+  from:
+  - persistence
+- T1078_002:	Domain Accounts
+  from:
+  - persistence
+- T1078:	Valid Accounts
+  from:
+  - persistence
+
+
+
+# Defense evasion techniques
+- T1078: Valid Accounts
+  from:
+  - defense_evasion
+  - persistence
+- T1070:	Indicator Removal on Host
+  from:
+  - defense_evasion
+- T1027_010: Command Obfuscation
+  from: 
+  - defense_evasion
+- T1036_008: Masquerade File Type
+  from:
+  - defense_evasion
+- T1055: Process Injection
+  from:
+  - defense_evasion
+  - privilege_escalation
+
+
+
+
+
+
+
+
+## Collection techniques
+- T1560: Archive Collected Data
+  from:
+  - collection
+- T1560_001: Archive via utility
+  from:
+  - collection
+- T1213_002:	Sharepoint
+  from:
+  - collection
+- T1213:	Data from Information Repositories
+  from:
+  - collection
+- T1119:	Automated Collection
+  from:
+  - collection
+- T1114:	Email Collection
+  from:
+  - collection
+- T1074_001:	Local Data Staging
+  from:
+  - collection
+- T1074:	Data Staged
+  from:
+  - collection
+- T1039: Data from Network Shared Drive
+  from:
+  - collection
+  - T1046
+
+## Command and control techniques
+- T1071_001: Application Layer Protocol - Web Protocols
+  from:
+  - command_and_control
+- T1071_004: Application Layer Protocol - DNS
+  from:
+  - command_and_control
+- T1571: Non-Standard Port
+  from:
+  - command_and_control
+- T1132: Data Encoding
+  from:
+  - command_and_control
+- T1219: Remote Access Software
+  from:
+  - command_and_control
+
+## Exfiltration techniques
+- T1567_002:	Exfiltration to Cloud Storage
+  from:
+  - exfiltration
+- T1567:	Exfiltration Over Web Service
+  from:
+  - exfiltration
+- T1052_001:	Exfiltration over USB
+  from:
+  - exfiltration
+- T1052:	Exfiltration Over Physical Medium
+  from:
+  - exfiltration
+- T1048_003: Exfiltration Over Unencrypted Non-C2 Protocol
+  from:
+  - exfiltration:
+
+
+
+######## Sort below ###
+
+
+- T1059_001: PowerShell use
+  from:
+  - execution
+- T1059_003: Windows Command Shell
+  from:
+  - execution
+- T1027_010: Command Obfuscation
+  from: 
+  - defense_evasion
+- T1036_008: Masquerade File Type
+  from:
+  - defense_evasion
+- T1055: Process Injection
+  from:
+  - defense_evasion
+  - privilege_escalation
+- T1046: Network Service Discovery
+  from:
+  - discovery
+- T1039: Data from Network Shared Drive
+  from:
+  - collection
+  - T1046
+- T1021_001: Remote Desktop Protocol
+  from:
+  - lateral_movement
+- T1003_001: OS Credential Dumping - LSASS Memory
+  from:
+  - credential_access
+- T1486: Data Encrypted for Impact
+  from:
+  - T1059_001:
+  - impact: 
+- T1490: Inhibit system recovery
+  from:
+  - T1059_003
+  - impact: 
+- T1489: Service Stop (attacker wins)
+  from:
+  - impact: 
+- T1048_003: Exfiltration Over Unencrypted Non-C2 Protocol
+  from:
+  - exfiltration:
+
+
+
+- T1203: 'Exploitation for Client Execution'
+  from:
+  - execution
+- T1204_002: 'User Execution: Malicious File'
+  from:
+  - execution
+- T1569: System Services
+  from:
+  - execution
+- T1547: Boot or Logon Autostart Execution
+  from:
+  - persistence
+- T1055: Process Injection
+  from:
+  - privilege_escalation
+  - defense_evasion
+- T1055_001: Dynamic-link Library Injection
+  from:
+  - privilege_escalation
+- T1027_002: Obfuscated Files or Information
+  from:
+  - privilege_escalation
+- T1036_005: Masquerading - Match Legitimate Name or Location
+  from:
+  - defense_evasion
+- T1033: System Owner/User Discovery
+  from:
+  - discovery
+- T1082: System Information Discovery
+  from:
+  - discovery
+- T1560: Archive Collected Data
+  from:
+  - collection
+
+
+mitigations:
+- M1056: Cannot be easily mitigated
+  from:
+  - T1039:
+    backwards: true
+  - T1587_001: 'Pre-compromise'
+    backwards: true
+  - T1588_002: 'Pre-compromise'
+    backwards: true
+  - T1547: 'LOLbins'
+    backwards: true
+  - T1033: 'LOLbins'
+    backwards: true
+- multi_factor_authentication: Use strong two-factor or multi-factor authentication
+  from:
+  - T1566_001: 
+    backwards: true
+  - T1021_001: 
+    backwards: true
+- user_training: 
+  from:
+  - T1566_001:
+    backwards: true
+  - T1204_002:
+    backwards: true
+  - T1566:
+    backwards: true
+- M1021: Restrict Web-Based Content
+  from:
+  - T1566_001:
+    backwards: true
+- M1027: Password Policies
+  from:
+  - T1078_003:
+    backwards: true
+- M1026: Privileged Account Management
+  from:
+  - T1078_003:
+    backwards: true
+  - T1021_001:
+    backwards: true
+  - T1003_001:
+    backwards: true
+  - T1486:
+    backwards: true
+- M1049: Antivirus/Antimalware
+  from:
+  - T1027_010:
+    backwards: true
+  - T1036_008:
+    backwards: true
+  - T1566:
+    backwards: true
+  - T1027_002:
+    backwards: true
+- M1040: Behavior Prevention on Endpoint
+  from:
+  - T1027_010:
+    backwards: true
+  - T1036_008:
+    backwards: true
+  - T1003_001:
+    backwards: true
+  - T1091:
+    backwards: true
+  - T1204_002:
+    backwards: true
+  - T1569:
+    backwards: true
+  - T1055:
+    backwards: true
+  - T1055_001:
+    backwards: true
+- M1053: Data Backup
+  from:
+  - T1486:
+    backwards: true
+- M1038: Execution Prevention
+  from:
+  - T1036_008:
+    backwards: true
+  - T1204_002:
+    backwards: true
+  - T1036_005:
+    backwards: true
+- M1030: Network Segmentation
+  from:
+  - T1489:
+    backwards: true
+  - T1048_003:
+    backwards: true
+  - T1021_001:
+    backwards: true
+- M1022: Restrict File and Directory Permissions
+  from:
+  - T1489:
+    backwards: true
+- M1024: Restrict Registry Permissions
+  from:
+  - T1489:
+    backwards: true
+- M1018: User Account Management
+  from:
+  - T1489:
+    backwards: true
+  - T1021_001:
+    backwards: true
+- M1057: Data loss prevention
+  from:
+  - T1048_003:
+    backwards: true
+- M1037: Filter network traffic
+  from:
+  - T1048_003:
+    backwards: true
+- M1031: Network Intrusion prevention
+  from:
+  - T1048_003:
+    backwards: true
+  - T1566:
+    backwards: true
+  - T1071_001:
+    backwards: true
+  - T1071_004:
+    backwards: true
+  - T1571:
+    backwards: true
+  - T1132:
+    backwards: true
+- M1028: Operating system configuration
+  from:
+  - T1021_001:
+    backwards: true
+  - T1003_001:
+    backwards: true
+- M1035: Limit access to resource over network
+  from:
+  - T1021_001:
+    backwards: true
+- M1042: Disable or remove feature or program\
+  from:
+  - T1021_001:
+    backwards: true
+  - T1091:
+    backwards: true
+- M1047: Audit
+  from:
+  - T1021_001:
+    backwards: true
+- M1034: 'Limit Hardware Installation'
+  from:
+  - T1091:
+    backwards: true
+- M1048: 'Application Isolation and Sandboxing'
+  from:
+  - T1203:
+    backwards: true
+- M1050: 'Exploit Protection' 
+  from:
+  - T1203: 
+    backwards: true
+- M1021: Restrict Web-Based Content
+  from:
+  - T1566:
+    backwards: true
+- M1054: Software Configuration
+  from:
+  - T1566:
+    backwards: true
+- M1026: Privileged Account Management
+  from:
+  - T1569:
+    backwards: true
+  - T1055:
+    backwards: true
+- M1022: Restrict File and Directory Permissions
+  from:
+  - T1569:
+    backwards: true
+  - T1036_005:
+    backwards: true
+- M1018: User Account Management
+  from:
+  - T1569:
+    backwards: true
+- M1045: Code Signing
+  from:
+  - T1036_005:
+    backwards: true
+- M1047: Audit
+  from:
+  - T1560:
+    backwards: true
+- M1037: Filter network traffic
+  from:
+  - T1071_004:
+    backwards: true
+- M1030: Network Segmentation
+  from:
+  - T1571:
+    backwards: true
+
+detections:
+- DS0028: Monitor for user accounts logged into systems associated with RDP
+  from:
+  - T1021_001
+- DS0029_001: Monitor for newly constructed network connections (typically over port 3389) that may use Valid Accounts to log into a computer using the Remote Desktop Protocol (RDP)
+  from:
+  - T1021_001
+- DS0029_002: Monitor network traffic for uncommon data flows that may use Valid Accounts to log into a computer using the Remote Desktop Protocol (RDP).
+  from:
+  - T1021_001
+- DS0009: Monitor for newly executed processes (such as mstsc.exe) that may use Valid Accounts to log into a computer using the Remote Desktop Protocol (RDP). 
+  from:
+  - T1021_001
