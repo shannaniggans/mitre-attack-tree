@@ -1,0 +1,226 @@
+theme: cosive
+title: Attack Tree for Insider Threat
+
+facts:
+- insider_threat: Insider Threat
+  from:
+  - reality: 
+- resource_development:
+  from:
+  - insider_threat:
+- persistence:
+  from:
+  - insider_threat:
+- defense_evasion:
+  from:
+  - insider_threat:
+- collection:
+  from:
+  - insider_threat:
+- command_and_control:
+  from:
+  - insider_threat:
+- exfiltration:
+  from:
+  - insider_threat:
+
+attacks:
+- T1585: Establish Accounts
+  from: 
+  - resource_development
+- T1078_004: Cloud Accounts
+  from:
+  - persistence
+- T1078_002: Domain Accounts
+  from:
+  - persistence
+- T1078: Valid Accounts
+  from:
+  - defense_evasion
+  - persistence
+- T1070: Indicator Removal on Host
+  from:
+  - defense_evasion
+- T1560: Archive Collected Data
+  from:
+  - collection
+- T1560_001: Archive via utility
+  from:
+  - collection
+- T1213_002: Sharepoint
+  from:
+  - collection
+- T1213: Data from Information Repositories
+  from:
+  - collection
+- T1119: Automated Collection
+  from:
+  - collection
+- T1114: Email Collection
+  from:
+  - collection
+- T1074_001: Local Data Staging
+  from:
+  - collection
+- T1074: Data Staged
+  from:
+  - collection
+- T1219: Remote Access Software
+  from:
+  - command_and_control
+## Exfiltration techniques
+- T1567_002: Exfiltration to Cloud Storage
+  from:
+  - exfiltration
+- T1567: Exfiltration Over Web Service
+  from:
+  - exfiltration
+- T1052_001: Exfiltration over USB
+  from:
+  - exfiltration
+
+mitigations:
+- M1056: Cannot be easily mitigated
+  from:
+  - T1585:
+    backwards: true
+  - T1074:
+    backwards: true
+- M1036: Account use policies
+  from:
+  - T1078:
+    backwards: true
+  - T1078_002:
+    backwards: true
+  - T1078_004:
+    backwards: true
+- M1015: Active directory configuration
+  from:
+  - T1078_002:
+    backwards: true
+- M1027: Password policies
+  from:
+  - T1078:
+    backwards: true
+  - T1078_002:
+    backwards: true
+  - T1078_004:
+    backwards: true
+- M1026: Privileged Account Management
+  from:
+  - T1078:
+    backwards: true
+- M1018: User Account Management
+  from:
+  - T1078:
+    backwards: true
+  - T1213:
+    backwards: true
+- M1018: User training
+  from:
+  - T1213:
+    backwards: true
+- M1057: Data loss prevention
+  from:
+  - T1052_001:
+    backwards: true
+- M1042: Disable or remove feature or program
+  from:
+  - T1052_001:
+    backwards: true
+- M1034: 'Limit Hardware Installation'
+  from:
+  - T1052_001:
+    backwards: true
+- M1041: Encrypt Sensitive Information
+  from:
+  - T1070:
+    backwards: true
+  - T1119:
+    backwards: true
+  - T1114:
+    backwards: true
+- M1029: Automatically forward events to a log server or data repository
+  from:
+  - T1070:
+    backwards: true
+  - T1119:
+    backwards: true
+- M1022: Restrict File and Directory Permissions
+  from:
+  - T1070:
+    backwards: true
+- M1038: Execution prevention / application control
+  from:
+  - T1219:
+    backwards: true
+- M1037: Filter network traffic
+  from:
+  - T1219:
+    backwards: true
+- M1031: Network intrusion prevention
+  from:
+  - T1219:
+    backwards: true
+- M1047: Audit 
+  from:
+  - T1560: 'software on end points'
+    backwards: true
+  - T1560_001: 'software on end points'
+    backwards: true
+  - T1114: 'email auto-forward rules'
+    backwards: true
+  - T1213: 'account auditing'
+- M1032: multi-factor authentication
+  from:
+  - T1114:
+    backwards: true
+
+detections:
+- DS0029: Monitor network traffic
+  from:
+  - M1056
+  - M1037
+  - T1114:
+- DS0028: Monitor for newly constructed logon behavior that may obtain and abuse credentials of existing accounts
+  from:
+  - M1036
+  - T1213:
+- DS0002: User account Authentication - Monitor for an attempt by a user that may obtain and abuse credentials of existing accounts.
+  from:
+  - M1026
+- DS0016: Monitor for newly assigned drive letters or mount points to a data storage device
+  from:
+  - M1034
+- DS0009: Monitor for newly executed processes
+  from:
+  - M1057
+  - M1037
+  - M1047:
+- DS0015: Monitor application log content
+  from:
+  - M1029:
+  - M1032:
+  - T1114:
+  - T1213:
+- DS0017: Monitor command execution (e.g EDR)
+  from:
+  - M1029:
+  - M1047:
+  - M1057:
+  - T1119:
+  - T1114:
+  - T1074:
+- DS0022: Monitor file deletion / modification
+  from:
+  - M1057: 'Removable Media'
+  - M1041:
+  - M1022:
+  - M1047:
+  - T1119:
+  - T1114:
+  - T1074:
+- DS0012: Monitor for script execution (Eg EDR)
+  from:
+  - M1047:
+  - T1119:
